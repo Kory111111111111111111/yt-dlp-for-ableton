@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>YouTubeToProject</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html, body {
+      height: 100%;
+      background: #363636;
+      color: #b5b5b5;
+      font: 500 11.5px "AbletonSansSmall", sans-serif;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      padding: 14px;
+      gap: 10px;
+    }
+    .title { color: #ff9f43; font-size: 12px; }
+    .message { line-height: 1.45; color: #b5b5b5; white-space: pre-wrap; }
+    .spacer { flex: 1; }
+    .actions { display: flex; justify-content: flex-end; }
+    .actions button {
+      height: 22px;
+      padding: 0 14px;
+      border: 1px solid #121212;
+      border-radius: 11px;
+      background: #ff9f43;
+      color: #121212;
+      cursor: pointer;
+    }
+  </style>
+  <script>
+    (function () {
+      var live = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.live;
+      var wv2 = window.chrome && window.chrome.webview;
+      function send(msg) {
+        if (live) live.postMessage(msg);
+        else if (wv2) wv2.postMessage(msg);
+      }
+      function closeDialog() {
+        send({ method: "close_and_send", params: [JSON.stringify({ dismissed: true })] });
+      }
+      window.__initErrorDialog = function () {
+        document.getElementById("btn-ok").onclick = closeDialog;
+        document.onkeydown = function (e) {
+          if (e.key === "Escape" || e.key === "Enter") closeDialog();
+        };
+      };
+    })();
+  </script>
+</head>
+<body onload="window.__initErrorDialog()">
+  <div class="title">__DIALOG_TITLE__</div>
+  <div class="message">__DIALOG_MESSAGE__</div>
+  <div class="spacer"></div>
+  <div class="actions">
+    <button type="button" id="btn-ok">OK</button>
+  </div>
+</body>
+</html>

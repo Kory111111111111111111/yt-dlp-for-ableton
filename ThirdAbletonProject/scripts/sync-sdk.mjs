@@ -1,11 +1,3 @@
-/**
- * Copy Ableton Extensions SDK .tgz files into vendor/ for npm install.
- *
- * Sources (first match wins):
- *   1. ABLETON_SDK_DIR environment variable
- *   2. ../../../AbletonExtensions/extensions-sdk-1.0.0-beta.0 (sibling repo on Desktop)
- *   3. ../extensions-sdk-1.0.0-beta.0 (legacy layout next to ThirdAbletonProject)
- */
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -24,8 +16,8 @@ function resolveSdkDir() {
   }
 
   const candidates = [
-    path.resolve(projectRoot, "../../../AbletonExtensions/extensions-sdk-1.0.0-beta.0"),
     path.resolve(projectRoot, "../extensions-sdk-1.0.0-beta.0"),
+    path.resolve(projectRoot, "../../../AbletonExtensions/extensions-sdk-1.0.0-beta.0"),
   ];
 
   for (const candidate of candidates) {
@@ -63,10 +55,11 @@ if (vendorReady && process.env.FORCE_SDK_SYNC !== "1") {
 const sdkDir = resolveSdkDir();
 if (!sdkDir) {
   console.error(
-    "sync-sdk: Could not find Ableton Extensions SDK.\n\n" +
-      "Set ABLETON_SDK_DIR to your extensions-sdk-1.0.0-beta.0 folder, or clone:\n" +
-      "  https://github.com/Kory111111111111111111/AbletonExtensions\n\n" +
-      "CI checks out that repo automatically; local dev needs it nearby or in vendor/.",
+    "sync-sdk: Could not find Ableton Extensions SDK packages.\n\n" +
+      "Download the SDK from Ableton: https://ableton.github.io/extensions-sdk/\n\n" +
+      "Then either:\n" +
+      "  export ABLETON_SDK_DIR=/path/to/extensions-sdk-1.0.0-beta.0 && npm run sync-sdk\n" +
+      "  or copy ableton-extensions-sdk-1.0.0-beta.0.tgz and ableton-extensions-cli-1.0.0-beta.0.tgz into vendor/\n",
   );
   process.exit(1);
 }

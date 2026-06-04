@@ -1,18 +1,16 @@
 name: Setup Ableton Extensions SDK
-description: Check out AbletonExtensions and copy SDK packages into ThirdAbletonProject/vendor/
+description: Maintainer CI — fetch SDK packages into ThirdAbletonProject/vendor/
 
 inputs:
   token:
-    description: >
-      GitHub token with read access to AbletonExtensions (required if that repo is private).
-      Use a fine-grained PAT or classic PAT stored as ABLETON_EXTENSIONS_PAT.
+    description: Repository secret ABLETON_EXTENSIONS_PAT
     required: false
     default: ${{ github.token }}
 
 runs:
   using: composite
   steps:
-    - name: Checkout AbletonExtensions
+    - name: Checkout SDK packages (maintainer)
       uses: actions/checkout@v4
       with:
         repository: Kory111111111111111111/AbletonExtensions

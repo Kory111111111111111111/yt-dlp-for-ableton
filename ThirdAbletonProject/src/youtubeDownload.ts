@@ -107,7 +107,7 @@ export async function downloadYoutubeAsMp3(
   const { watchUrl, videoId } = link;
 
   const outputTemplate = path.join(tempDir, `${videoId}.%(ext)s`);
-  const expectedMp3 = path.join(tempDir, `${videoId}.mp3`);
+  const expectedMp3 = path.join(tempDir, `${videoId}.wav`);
 
   const ffmpegArgs = ffmpegPath ? ["--ffmpeg-location", ffmpegPath] : [];
 
@@ -141,7 +141,7 @@ export async function downloadYoutubeAsMp3(
       "--no-playlist",
       "--extract-audio",
       "--audio-format",
-      "mp3",
+      "wav",
       "--audio-quality",
       "0",
       "--no-part",
@@ -161,7 +161,7 @@ export async function downloadYoutubeAsMp3(
   if (!(await fileExists(expectedMp3))) {
     const entries = await fs.readdir(tempDir);
     const mp3 = entries.find(
-      (name) => name.startsWith(videoId) && name.endsWith(".mp3"),
+      (name) => name.startsWith(videoId) && name.endsWith(".wav"),
     );
     if (!mp3) {
       throw new Error(

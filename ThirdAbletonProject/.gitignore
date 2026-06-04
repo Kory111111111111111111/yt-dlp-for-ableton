@@ -3,3 +3,4 @@ dist/
 *.ablx
 .temp/
 .storage/
+vendor/*.tgz

@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  ABLETON_EXTENSIONS_REPO: Kory111111111111111111/AbletonExtensions
+  ABLETON_SDK_VERSION: extensions-sdk-1.0.0-beta.0
+
+jobs:
+  package:
+    name: Build .ablx release asset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout extension
+        uses: actions/checkout@v4
+
+      - name: Checkout Ableton Extensions SDK
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.ABLETON_EXTENSIONS_REPO }}
+          path: .sdk-source
+          sparse-checkout: ${{ env.ABLETON_SDK_VERSION }}
+
+      - name: Sync SDK into vendor/
+        working-directory: ThirdAbletonProject
+        run: node scripts/sync-sdk.mjs
+        env:
+          ABLETON_SDK_DIR: ${{ github.workspace }}/.sdk-source/${{ env.ABLETON_SDK_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: ThirdAbletonProject/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ThirdAbletonProject
+        run: npm ci
+
+      - name: Package extension
+        working-directory: ThirdAbletonProject
+        run: npm run package
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ThirdAbletonProject/dist/YouTubeToProject.ablx
+          generate_release_notes: true

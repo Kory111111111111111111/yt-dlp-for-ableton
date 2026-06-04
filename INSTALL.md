@@ -4,7 +4,7 @@ For **end users** — no Terminal, no Developer Mode, no `npm start`.
 
 ## What you need
 
-1. **Ableton Live 12** with Extensions support (beta)
+1. **Ableton Live 12** with Extensions support (beta) — **Windows or macOS**
 2. **yt-dlp** and **ffmpeg** installed and on your system PATH  
    (the extension does not bundle them)
 
@@ -18,6 +18,20 @@ winget install Gyan.FFmpeg
 Restart Ableton after installing.
 
 If import says yt-dlp was not found, open PowerShell, run `where.exe yt-dlp`, and see **Optional: custom tool paths** below.
+
+### macOS
+
+Install [Homebrew](https://brew.sh/) if you do not have it, then in Terminal:
+
+```bash
+brew install yt-dlp ffmpeg
+```
+
+Restart Ableton after installing.
+
+If import says yt-dlp was not found, open Terminal, run `which yt-dlp`, and see **Optional: custom tool paths** below.
+
+On Apple Silicon, Homebrew usually installs to `/opt/homebrew/bin`. On Intel Macs, `/usr/local/bin` is common.
 
 ## Install the extension
 
@@ -51,39 +65,46 @@ Paste a YouTube link and confirm. Audio is copied into your **Live project** (sa
 
 The extension **deletes temp download files** after a successful import so they do not pile up.
 
-## Optional: custom tool paths (fixes "yt-dlp exited with code 1")
+## Optional: custom tool paths
 
-If yt-dlp and ffmpeg work in PowerShell but not in Live, Live is likely running with a narrower
-system PATH that does not include the tools installed by `winget`. This is a common Windows
-behaviour for GUI apps — they only see the system-wide PATH, not user PATH additions.
+If yt-dlp and ffmpeg work in Terminal or PowerShell but **not in Live**, Live is likely running with a narrower PATH than your shell. GUI apps on Windows and macOS often miss user PATH entries (e.g. WinGet folders or Homebrew’s `/opt/homebrew/bin`).
 
 Fix this by giving the extension explicit absolute paths to both executables.
 
 ### Step 1 — find your paths
 
-Open PowerShell and run:
+**Windows** — PowerShell:
 
 ```powershell
 where.exe yt-dlp
 where.exe ffmpeg
 ```
 
-Copy the full path printed for each (e.g. `C:\Users\YourName\AppData\Local\Microsoft\WinGet\...`).
+**macOS** — Terminal:
+
+```bash
+which yt-dlp
+which ffmpeg
+```
+
+Copy the full path printed for each.
 
 ### Step 2 — find the extension storage folder
 
 The extension creates its storage folder the first time it runs:
 
 | OS | Typical location |
-|----|-----------------|
+|----|------------------|
 | Windows | `%APPDATA%\Ableton\Live <version>\Preferences\Extensions\YouTubeToAbleton\storage\` |
+| macOS | `~/Library/Preferences/Ableton/Live <version>/Preferences/Extensions/YouTubeToAbleton/storage/` |
 
-The fastest way: attempt an import once (it will fail with a message), then look for a folder
-named `YouTubeToAbleton` inside `%APPDATA%\Ableton`.
+The fastest way: attempt an import once (it may fail with a message), then look for a folder named `YouTubeToAbleton` under your Ableton Live preferences (see paths above). Replace `<version>` with your Live install name, e.g. `Live 12 Beta`.
 
 ### Step 3 — create tools.json
 
-In that storage folder, create a file called **`tools.json`** with both paths:
+In that **storage** folder, create a file called **`tools.json`**.
+
+**Windows example:**
 
 ```json
 {
@@ -92,10 +113,29 @@ In that storage folder, create a file called **`tools.json`** with both paths:
 }
 ```
 
-Use the exact paths from `where.exe` in Step 1. You can omit either key if that tool is already
-visible to Live — only add the ones that are missing.
+**macOS example (Apple Silicon / Homebrew):**
 
-> **Tip:** The `FFMPEG_PATH` environment variable is also honoured as a fallback.
+```json
+{
+  "ytDlpPath": "/opt/homebrew/bin/yt-dlp",
+  "ffmpegPath": "/opt/homebrew/bin/ffmpeg"
+}
+```
+
+**macOS example (Intel Mac, Homebrew on `/usr/local`):**
+
+```json
+{
+  "ytDlpPath": "/usr/local/bin/yt-dlp",
+  "ffmpegPath": "/usr/local/bin/ffmpeg"
+}
+```
+
+Use the exact paths from Step 1. You can omit either key if that tool is already visible to Live — only add the ones that are missing.
+
+Restart Live after saving `tools.json`.
+
+> **Tip:** The `YT_DLP_PATH` and `FFMPEG_PATH` environment variables are also honoured as fallbacks when set for the Live process (uncommon; `tools.json` is simpler).
 
 ## Uninstall
 

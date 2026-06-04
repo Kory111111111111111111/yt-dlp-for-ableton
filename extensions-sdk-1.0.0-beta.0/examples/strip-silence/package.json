@@ -1,0 +1,19 @@
+{
+  "type": "module",
+  "main": "dist/extension.js",
+  "scripts": {
+    "build": "tsc --noEmit && tsx build.ts",
+    "start": "tsx build.ts && extensions-cli run"
+  },
+  "dependencies": {
+    "@ableton-extensions/sdk": "file:../../ableton-extensions-sdk-1.0.0-beta.0.tgz",
+    "audio-decode": "^2.2.3"
+  },
+  "devDependencies": {
+    "@ableton-extensions/cli": "file:../../ableton-extensions-cli-1.0.0-beta.0.tgz",
+    "@types/node": "^25.0.10",
+    "esbuild": "0.28.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.3"
+  }
+}

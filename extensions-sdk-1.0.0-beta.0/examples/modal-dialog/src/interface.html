@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rename Clip</title>
+  <script>
+    const isWebKitMessageHandlerAvailable = window.webkit &&
+      window.webkit.messageHandlers &&
+      window.webkit.messageHandlers.live;
+    const isWebView2 = window.chrome && window.chrome.webview;
+
+    function doSendMessage(message) {
+      if (isWebKitMessageHandlerAvailable) {
+        window.webkit.messageHandlers.live.postMessage(message);
+      } else if (isWebView2) {
+        window.chrome.webview.postMessage(message);
+      }
+    }
+
+    function closeWithResult(result) {
+      doSendMessage({ method: "close_and_send", params: [JSON.stringify(result)] });
+    }
+
+    function selectSample() {
+      closeWithResult({ name: document.getElementById('name').value });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('name').focus();
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') selectSample();
+        if (e.key === 'Escape') closeWithResult({ name: null });
+      });
+    });
+  </script>
+  <style>
+    /* Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    *:not(dialog) { margin: 0; }
+    input, button { font: inherit; }
+
+    /* Live dark theme */
+    :root {
+      --p-live-ui-bg: hsl(0, 0%, 21%);
+      --p-live-control-bg: hsl(0, 0%, 16%);
+      --p-live-input-bg: hsl(0, 0%, 12%);
+      --p-live-text-primary: hsl(0, 0%, 71%);
+      --p-live-control-border: hsl(0, 0%, 7%);
+      --p-live-text-secondary: hsl(0, 0%, 41%);
+      --p-live-accent-primary: hsl(31, 100%, 67%);
+      --p-live-control-text--enabled: hsl(0, 0%, 7%);
+
+      --c-bg--0500: oklch(from var(--p-live-ui-bg) l c h);
+      --c-text-primary: oklch(from var(--p-live-text-primary) l c h);
+      --c-text-secondary: oklch(from var(--p-live-text-secondary) l c h);
+      --c-control-bg--400: oklch(from var(--p-live-control-bg) calc(l * 0.9) c h);
+      --c-control-bg--500: oklch(from var(--p-live-control-bg) l c h);
+      --c-control-border: oklch(from var(--p-live-control-border) l c h);
+      --c-control-outline: var(--c-text-secondary);
+      --c-control-on-foreground: oklch(from var(--p-live-control-text--enabled) l c h);
+      --c-input-bg-500: oklch(from var(--p-live-input-bg) l c h);
+      --c-highlight--primary: oklch(from var(--p-live-accent-primary) l c h);
+    }
+
+    html {
+      background-color: var(--c-bg--0500);
+      color: var(--c-text-primary);
+      font-family: "AbletonSansSmall", sans-serif;
+      font-size: 11.5px;
+      font-weight: 500;
+      -webkit-font-smoothing: antialiased;
+      height: 100%;
+    }
+
+    body {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5em;
+    }
+
+    .alx-label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25em;
+      cursor: pointer;
+    }
+
+    .alx-input:not([type="range"]) {
+      font-size: 1rem;
+      line-height: 1.5;
+      background-color: var(--c-input-bg-500);
+      color: var(--c-text-primary);
+      border: 1px solid var(--c-control-border);
+      height: 20px;
+      padding: 0 0.33em;
+      outline-offset: 0;
+      width: 100%;
+    }
+    .alx-input:not([type="range"])::placeholder { color: var(--c-text-secondary); }
+    .alx-input:not([type="range"]):focus {
+      border-color: var(--c-control-border);
+      outline: 2px solid var(--c-control-outline);
+    }
+
+    .alx-button {
+      font-size: 1rem;
+      line-height: 1;
+      background-color: var(--c-control-bg--500);
+      color: var(--c-text-primary);
+      border: 1px solid var(--c-control-border);
+      height: 20px;
+      padding: 0 1em;
+      border-radius: 1em;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .alx-button:hover { background-color: var(--c-control-bg--400); }
+    .alx-button:active {
+      color: var(--c-control-on-foreground);
+      background-color: var(--c-highlight--primary);
+    }
+    .alx-button:focus { outline: 2px solid var(--c-control-outline); }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5em;
+      width: 100%;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 0.5em;
+      justify-content: flex-end;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="form">
+    <label class="alx-label" for="name">Rename your clip</label>
+    <input class="alx-input" type="text" id="name" placeholder="New clip name…" />
+    <div class="buttons">
+      <button class="alx-button" onclick='closeWithResult({ name: null })'>Cancel</button>
+      <button class="alx-button" onclick="selectSample()">OK</button>
+    </div>
+  </div>
+</body>
+
+</html>

@@ -41,7 +41,7 @@ Out of scope:
 ## Secure development
 
 - CI runs `npm audit`, [Dependency Review](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-dependency-review) on pull requests, and [CodeQL](https://codeql.github.com/) analysis.
-- The Ableton SDK is **not** vendored in this repo; CI fetches pinned packages from [AbletonExtensions](https://github.com/Kory111111111111111111/AbletonExtensions).
+- The Ableton SDK is **not** vendored in this repo. Maintainer CI fetches packages from a private SDK mirror using `ABLETON_EXTENSIONS_PAT` (see README). Public CI runs tests that do not need the SDK.
 - Release assets are built only from tagged commits via [.github/workflows/release.yml](.github/workflows/release.yml).
 
 ## User hardening

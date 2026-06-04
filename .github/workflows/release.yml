@@ -8,30 +8,18 @@ on:
 permissions:
   contents: write
 
-env:
-  ABLETON_EXTENSIONS_REPO: Kory111111111111111111/AbletonExtensions
-  ABLETON_SDK_VERSION: extensions-sdk-1.0.0-beta.0
-
 jobs:
   package:
     name: Build .ablx release asset
     runs-on: ubuntu-latest
+    if: secrets.ABLETON_EXTENSIONS_PAT != ''
     steps:
-      - name: Checkout extension
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Checkout Ableton Extensions SDK
-        uses: actions/checkout@v4
+      - name: Setup Ableton SDK
+        uses: ./.github/actions/setup-ableton-sdk
         with:
-          repository: ${{ env.ABLETON_EXTENSIONS_REPO }}
-          path: .sdk-source
-          sparse-checkout: ${{ env.ABLETON_SDK_VERSION }}
-
-      - name: Sync SDK into vendor/
-        working-directory: ThirdAbletonProject
-        run: node scripts/sync-sdk.mjs
-        env:
-          ABLETON_SDK_DIR: ${{ github.workspace }}/.sdk-source/${{ env.ABLETON_SDK_VERSION }}
+          token: ${{ secrets.ABLETON_EXTENSIONS_PAT }}
 
       - uses: actions/setup-node@v4
         with:

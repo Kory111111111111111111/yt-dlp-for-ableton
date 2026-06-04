@@ -70,13 +70,26 @@ Edit code → stop the terminal → `npm run start` again.
 
 ## CI / releases
 
-GitHub Actions on every push and PR:
+| Job | Runs when |
+|-----|-----------|
+| **test (public)** | Every push and PR — URL unit tests + lockfile audit (no Ableton SDK) |
+| **build (maintainer)** | Your repo only, with `ABLETON_EXTENSIONS_PAT` — full compile + tests |
+| **dependency-review** | Pull requests |
+| **codeql (maintainer)** | Same as build |
 
-- Build, typecheck, and unit tests (SDK pulled from [AbletonExtensions](https://github.com/Kory111111111111111111/AbletonExtensions))
-- `npm audit` and Dependency Review on PRs
-- CodeQL analysis
+Fork PRs only need **test (public)** to pass. Maintainers run full `npm run ci` locally before merging external work. See [CONTRIBUTING.md](.github/CONTRIBUTING.md).
 
-Tag a release as `v*` (e.g. `v0.1.1`) to attach **`YouTubeToProject.ablx`** to the GitHub Release automatically.
+### Maintainer secret (not public)
+
+Add on **yt-dlp-for-ableton** → **Settings** → **Secrets and variables** → **Actions**:
+
+| Secret | Value |
+|--------|--------|
+| `ABLETON_EXTENSIONS_PAT` | Fine-grained PAT, **Contents: Read** on private `AbletonExtensions` only |
+
+The token is **not** visible to contributors or in logs. It is only injected into Actions on this repo (not on fork PRs).
+
+Tag `v*` (e.g. `v0.1.1`) to build **`YouTubeToProject.ablx`** for Releases (requires the secret).
 
 Security: see [SECURITY.md](SECURITY.md).
 

@@ -14,36 +14,59 @@ permissions:
   contents: read
   security-events: write
 
-defaults:
-  run:
-    working-directory: ThirdAbletonProject
-
-env:
-  ABLETON_EXTENSIONS_REPO: Kory111111111111111111/AbletonExtensions
-  ABLETON_SDK_VERSION: extensions-sdk-1.0.0-beta.0
-
 jobs:
-  build-and-test:
-    name: Build & test
+  # Runs for everyone (including fork PRs). No Ableton SDK required.
+  test:
+    name: test (public)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ThirdAbletonProject
     steps:
-      - name: Checkout extension
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Checkout Ableton Extensions SDK
-        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          repository: ${{ env.ABLETON_EXTENSIONS_REPO }}
-          path: .sdk-source
-          sparse-checkout: ${{ env.ABLETON_SDK_VERSION }}
+          node-version: "22"
 
-      - name: Sync SDK into vendor/
-        run: node scripts/sync-sdk.mjs
-        env:
-          ABLETON_SDK_DIR: ${{ github.workspace }}/.sdk-source/${{ env.ABLETON_SDK_VERSION }}
+      - name: Unit tests (URL parsing)
+        run: npx --yes tsx@4.19.0 --test tests/**/*.test.ts
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Lockfile audit
+        run: npm audit --package-lock-only --audit-level=high
+
+  dependency-review:
+    name: dependency-review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
+  # Maintainer only: ABLETON_EXTENSIONS_PAT + private AbletonExtensions checkout.
+  # Not run for pull requests from forks.
+  build:
+    name: build (maintainer)
+    runs-on: ubuntu-latest
+    if: >-
+      secrets.ABLETON_EXTENSIONS_PAT != '' &&
+      github.repository == 'Kory111111111111111111/yt-dlp-for-ableton' &&
+      (github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository)
+    defaults:
+      run:
+        working-directory: ThirdAbletonProject
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Ableton SDK
+        uses: ./.github/actions/setup-ableton-sdk
+        with:
+          token: ${{ secrets.ABLETON_EXTENSIONS_PAT }}
+
+      - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: npm
@@ -58,71 +81,24 @@ jobs:
       - name: Test
         run: npm run test
 
-  dependency-audit:
-    name: npm audit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Checkout SDK (for lockfile integrity)
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.ABLETON_EXTENSIONS_REPO }}
-          path: .sdk-source
-          sparse-checkout: ${{ env.ABLETON_SDK_VERSION }}
-
-      - name: Sync SDK into vendor/
-        working-directory: ThirdAbletonProject
-        run: node scripts/sync-sdk.mjs
-        env:
-          ABLETON_SDK_DIR: ${{ github.workspace }}/.sdk-source/${{ env.ABLETON_SDK_VERSION }}
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: npm
-          cache-dependency-path: ThirdAbletonProject/package-lock.json
-
-      - name: Install dependencies
-        working-directory: ThirdAbletonProject
-        run: npm ci
-
-      - name: Audit production dependencies
-        working-directory: ThirdAbletonProject
-        run: npm audit --omit=dev --audit-level=high
-
-      - name: Audit all dependencies
-        working-directory: ThirdAbletonProject
+      - name: npm audit (installed tree)
         run: npm audit --audit-level=high
 
-  dependency-review:
-    name: Dependency review
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/dependency-review-action@v4
-        with:
-          fail-on-severity: high
-
   codeql:
-    name: CodeQL
+    name: codeql (maintainer)
     runs-on: ubuntu-latest
+    if: >-
+      secrets.ABLETON_EXTENSIONS_PAT != '' &&
+      github.repository == 'Kory111111111111111111/yt-dlp-for-ableton' &&
+      (github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository)
     steps:
       - uses: actions/checkout@v4
 
-      - name: Checkout SDK
-        uses: actions/checkout@v4
+      - name: Setup Ableton SDK
+        uses: ./.github/actions/setup-ableton-sdk
         with:
-          repository: ${{ env.ABLETON_EXTENSIONS_REPO }}
-          path: .sdk-source
-          sparse-checkout: ${{ env.ABLETON_SDK_VERSION }}
-
-      - name: Sync SDK into vendor/
-        working-directory: ThirdAbletonProject
-        run: node scripts/sync-sdk.mjs
-        env:
-          ABLETON_SDK_DIR: ${{ github.workspace }}/.sdk-source/${{ env.ABLETON_SDK_VERSION }}
+          token: ${{ secrets.ABLETON_EXTENSIONS_PAT }}
 
       - uses: actions/setup-node@v4
         with:

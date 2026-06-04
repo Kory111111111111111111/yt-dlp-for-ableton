@@ -7,6 +7,7 @@
     "build": "tsc --noEmit && tsx build.ts",
     "start": "tsx build.ts && extensions-cli run --temp-directory .temp --storage-directory .storage",
     "test": "tsx --test tests/**/*.test.ts",
+    "test:public": "tsx --test tests/**/*.test.ts",
     "ci": "npm run build && npm run test",
     "verify": "npm run build && npm run test && tsx scripts/verify-tooling.ts",
     "package": "npm run build -- --production && extensions-cli package -o dist/YouTubeToProject.ablx"

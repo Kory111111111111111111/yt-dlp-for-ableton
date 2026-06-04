@@ -15,7 +15,6 @@ permissions:
   security-events: write
 
 jobs:
-  # Runs for everyone (including fork PRs). No Ableton SDK required.
   test:
     name: test (public)
     runs-on: ubuntu-latest
@@ -45,13 +44,10 @@ jobs:
         with:
           fail-on-severity: high
 
-  # Maintainer only: ABLETON_EXTENSIONS_PAT + private AbletonExtensions checkout.
-  # Not run for pull requests from forks.
   build:
     name: build (maintainer)
     runs-on: ubuntu-latest
     if: >-
-      secrets.ABLETON_EXTENSIONS_PAT != '' &&
       github.repository == 'Kory111111111111111111/yt-dlp-for-ableton' &&
       (github.event_name != 'pull_request' ||
       github.event.pull_request.head.repo.full_name == github.repository)
@@ -88,7 +84,6 @@ jobs:
     name: codeql (maintainer)
     runs-on: ubuntu-latest
     if: >-
-      secrets.ABLETON_EXTENSIONS_PAT != '' &&
       github.repository == 'Kory111111111111111111/yt-dlp-for-ableton' &&
       (github.event_name != 'pull_request' ||
       github.event.pull_request.head.repo.full_name == github.repository)

@@ -12,7 +12,6 @@ jobs:
   package:
     name: Build .ablx release asset
     runs-on: ubuntu-latest
-    if: secrets.ABLETON_EXTENSIONS_PAT != ''
     steps:
       - uses: actions/checkout@v4
 

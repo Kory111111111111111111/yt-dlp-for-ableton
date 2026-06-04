@@ -2,6 +2,7 @@
 ## The extension will automatically clean **most** youtube links, I have not found one to fail due to the link but if you find a pattern of it submit an issue
 
 ### Prerequesites
+- YOU NEED TO HAVE TEH extensions-sdk-1.0.0-beta.0 in the workspace, I have included it in the repo. 
 - Ableton Live 12.4.5 Beta 3 (this is the minimum version that has Extension support)
 - Windows (this also works for Mac, I just dont know how to set it up as I dont have one)
 - yt-dlp and ffmpeg 

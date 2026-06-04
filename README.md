@@ -1,5 +1,10 @@
 ## This repo holds the open source yt-dl wrapper extension for Ableton Live (12.4.5 Beta 3)
 ## The extension will automatically clean **most** youtube links, I have not found one to fail due to the link but if you find a pattern of it submit an issue
+---
+## There are no new big features being guaranteed for this, the only other features I am now exploring are
+- Automatically setting the BPM to sync w/ the imported track
+- Import specific time frames of videos vs just importing the entire video
+- Potentially building a bridge that allows you to just search for songs inside of Ableton on Youtube or Youtube Music and keep the entire flow in the extension. (this is more of a concept I am looking into, whether or not this gets implemented is honestly dependent on how well my zoloft continues to work)
 
 ### Prerequesites
 - YOU NEED TO HAVE TEH extensions-sdk-1.0.0-beta.0 in the workspace, I have included it in the repo. 
@@ -31,13 +36,13 @@ EXTENSION_HOST_PATH=C:\ProgramData\Ableton\Live 12 Beta\Program\Ableton Live 12 
 Extension Host sends greeting to Live
 FlipMessageStreamSocket send success
 ```
-- Go into Ableton, right click on Audio track and you should see the Extensions in the context menu. Open this extension, paste a link, choose WAV or MP3, and import it into Ableton.
+- Go into Ableton, right click on Audio track and you should see the Extensions in the context menu. Open this extension, paste a link, choose WAV or MP3, and it will automatically import it for you.
 ---
 ### Using The Extension
 - Download the ablx from the releases tab
 - open Ableton, go to Settings, go to extensions and drag the ablx or just hit the select file button thing and select the ablx
 - restart Ableton
-- Right click on an audio track, import audio from YouTube as WAV (default) or MP3 :)))
+- Right click on an audio track, import audio from YouTube as WAV or MP3 :)))
 
 
 ## Troubleshooting For Development

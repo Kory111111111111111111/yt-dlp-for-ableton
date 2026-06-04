@@ -15,6 +15,15 @@ export type YoutubeDownloadResult = {
   durationSeconds: number;
 };
 
+export type YoutubeAudioFormat = "wav" | "mp3";
+
+type BuildAudioArgsParams = {
+  watchUrl: string;
+  outputTemplate: string;
+  ffmpegPath: string | null;
+  format: YoutubeAudioFormat;
+};
+
 async function fileExists(filePath: string): Promise<boolean> {
   try {
     await fs.access(filePath);
@@ -95,9 +104,33 @@ function parseProgressPercent(line: string): number | undefined {
   return Math.min(100, Math.round(Number.parseFloat(match[1])));
 }
 
-export async function downloadYoutubeAsMp3(
+export function buildYtDlpAudioDownloadArgs({
+  watchUrl,
+  outputTemplate,
+  ffmpegPath,
+  format,
+}: BuildAudioArgsParams): string[] {
+  const ffmpegArgs = ffmpegPath ? ["--ffmpeg-location", ffmpegPath] : [];
+  const qualityArgs = format === "mp3" ? ["--audio-quality", "0"] : [];
+
+  return [
+    "--no-playlist",
+    "--extract-audio",
+    "--audio-format",
+    format,
+    ...qualityArgs,
+    "--no-part",
+    ...ffmpegArgs,
+    "-o",
+    outputTemplate,
+    watchUrl,
+  ];
+}
+
+export async function downloadYoutubeAudio(
   context: ExtensionContext<"1.0.0">,
   link: ParsedYoutubeLink,
+  format: YoutubeAudioFormat,
   tempDir: string,
   onProgress: (message: string, percent?: number) => Promise<void>,
   signal: AbortSignal,
@@ -107,9 +140,7 @@ export async function downloadYoutubeAsMp3(
   const { watchUrl, videoId } = link;
 
   const outputTemplate = path.join(tempDir, `${videoId}.%(ext)s`);
-  const expectedMp3 = path.join(tempDir, `${videoId}.wav`);
-
-  const ffmpegArgs = ffmpegPath ? ["--ffmpeg-location", ffmpegPath] : [];
+  const expectedAudio = path.join(tempDir, `${videoId}.${format}`);
 
   let title = "YouTube import";
   let durationSeconds = 0;
@@ -134,22 +165,15 @@ export async function downloadYoutubeAsMp3(
     }
   }
 
-  await onProgress("Downloading and converting to MP3…", 5);
+  await onProgress(`Downloading and converting to ${format.toUpperCase()}…`, 5);
   await runProcess(
     ytDlp,
-    [
-      "--no-playlist",
-      "--extract-audio",
-      "--audio-format",
-      "wav",
-      "--audio-quality",
-      "0",
-      "--no-part",
-      ...ffmpegArgs,
-      "-o",
-      outputTemplate,
+    buildYtDlpAudioDownloadArgs({
       watchUrl,
-    ],
+      outputTemplate,
+      ffmpegPath,
+      format,
+    }),
     tempDir,
     signal,
     (line) => {
@@ -158,22 +182,22 @@ export async function downloadYoutubeAsMp3(
     },
   );
 
-  if (!(await fileExists(expectedMp3))) {
+  if (!(await fileExists(expectedAudio))) {
     const entries = await fs.readdir(tempDir);
-    const mp3 = entries.find(
-      (name) => name.startsWith(videoId) && name.endsWith(".wav"),
+    const audioFile = entries.find(
+      (name) => name.startsWith(videoId) && name.endsWith(`.${format}`),
     );
-    if (!mp3) {
+    if (!audioFile) {
       throw new Error(
-        "Download finished but no MP3 file was found in the temp folder.",
+        `Download finished but no ${format.toUpperCase()} file was found in the temp folder.`,
       );
     }
     return {
-      filePath: path.join(tempDir, mp3),
+      filePath: path.join(tempDir, audioFile),
       title,
       durationSeconds,
     };
   }
 
-  return { filePath: expectedMp3, title, durationSeconds };
+  return { filePath: expectedAudio, title, durationSeconds };
 }

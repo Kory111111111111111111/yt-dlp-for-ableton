@@ -29,7 +29,7 @@ If import says yt-dlp was not found, run `where.exe yt-dlp` in PowerShell on Win
 - Download the ablx from the releases tab (file is called YouTubeToProject.ablx)
 - open Ableton, go to Settings, go to extensions and drag the ablx or just hit the select file button thing and select the ablx
 - restart Ableton
-- Right click on audio track, import ur MP3s from youtube :)))
+- Right click on audio track, import audio from YouTube as WAV (default) or MP3 :)))
 
 Go into your Ableton extension settings and verify that Development mode is turned off. This should only be turned on while developing the extension (see README).
 

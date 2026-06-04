@@ -16,8 +16,9 @@
       }
       window.__initYoutubeDialog = function () {
         var input = document.getElementById("url");
+        var format = document.getElementById("format");
         document.getElementById("btn-import").onclick = function () {
-          closeWithResult({ url: input.value, canceled: false });
+          closeWithResult({ url: input.value, format: format.value, canceled: false });
         };
         document.getElementById("btn-cancel").onclick = function () {
           closeWithResult({ canceled: true });
@@ -55,6 +56,23 @@
       color: #b5b5b5;
       outline: none;
     }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 110px;
+      gap: 10px;
+      align-items: end;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .field-label {
+      color: #8a8a8a;
+      font-size: 10px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
     .alx-input:focus { outline: 2px solid #6a6a6a; }
     .spacer { flex: 1; }
     .actions { display: flex; justify-content: flex-end; gap: 8px; }
@@ -75,8 +93,20 @@
 </head>
 <body onload="window.__initYoutubeDialog()">
   <div class="title">Import from YouTube</div>
-  <p class="hint">Paste a video link. Audio is downloaded as MP3 and added to your project. Requires yt-dlp and ffmpeg on PATH.</p>
-  <input class="alx-input" type="text" id="url" placeholder="https://www.youtube.com/watch?v=…" autocomplete="off" />
+  <p class="hint">Paste a video link, choose format, then import into your project. Requires yt-dlp and ffmpeg on PATH.</p>
+  <div class="row">
+    <div class="field">
+      <label class="field-label" for="url">YouTube URL</label>
+      <input class="alx-input" type="text" id="url" placeholder="https://www.youtube.com/watch?v=…" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label class="field-label" for="format">Format</label>
+      <select class="alx-input" id="format">
+        <option value="wav" selected>WAV</option>
+        <option value="mp3">MP3</option>
+      </select>
+    </div>
+  </div>
   <div class="spacer"></div>
   <div class="actions">
     <button type="button" id="btn-cancel">Cancel</button>

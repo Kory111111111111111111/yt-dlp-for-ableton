@@ -31,13 +31,13 @@ EXTENSION_HOST_PATH=C:\ProgramData\Ableton\Live 12 Beta\Program\Ableton Live 12 
 Extension Host sends greeting to Live
 FlipMessageStreamSocket send success
 ```
-- Go into Ableton, right click on Audio track and you should see the Extensions in the context menu, hovering over this should now allow you to click on the extension, paste a link and bring the MP3 into Ableton. 
+- Go into Ableton, right click on Audio track and you should see the Extensions in the context menu. Open this extension, paste a link, choose WAV or MP3, and import it into Ableton.
 ---
 ### Using The Extension
 - Download the ablx from the releases tab
 - open Ableton, go to Settings, go to extensions and drag the ablx or just hit the select file button thing and select the ablx
 - restart Ableton
-- Right click on audio track, import ur MP3s from youtube :)))
+- Right click on an audio track, import audio from YouTube as WAV (default) or MP3 :)))
 
 
 ## Troubleshooting For Development
@@ -59,3 +59,12 @@ FlipMessageStreamSocket send success
 ## Troubleshooting for Extension usage
 - Verify that you have correctly installed yt-dlp and ffmpeg from winget using your terminal. 
 - Go into your Ableton extension settings, verify that Development mode is turned off, this should only be turned on while developing the extension. 
+
+## Maintenance checklist for Ableton updates
+- Pull latest changes and run from `ThirdAbletonProject`: `npm install`, `npm run build`, `npm run test`, `npm run verify`.
+- In Ableton, smoke test all three entry points (Audio Track, Arrangement Selection, Session Clip Slot).
+- For each smoke test, verify both output formats:
+  - WAV import (default)
+  - MP3 import (switch format in dialog)
+- Confirm yt-dlp/ffmpeg resolution still works (PATH or `tools.json` overrides).
+- If Ableton extension APIs changed, update supported version notes before release.

@@ -11,19 +11,28 @@ import {
 import { mkdir } from "node:fs/promises";
 import errorDialogTemplate from "./error-dialog.html";
 import youtubeDialogTemplate from "./youtube-dialog.html";
-import { downloadYoutubeAsMp3 } from "./youtubeDownload.js";
+import {
+  downloadYoutubeAudio,
+  type YoutubeAudioFormat,
+} from "./youtubeDownload.js";
 import { cleanupTempArtifacts } from "./tempCleanup.js";
 import { parseYoutubeLink, type ParsedYoutubeLink } from "./youtubeUrl.js";
 import { assertYoutubeTooling, YoutubeToolingError } from "./youtubeTooling.js";
 
 const YOUTUBE_DIALOG_WIDTH = 440;
-const YOUTUBE_DIALOG_HEIGHT = 200;
+const YOUTUBE_DIALOG_HEIGHT = 232;
 const ERROR_DIALOG_WIDTH = 420;
 const ERROR_DIALOG_HEIGHT = 220;
 
 type YoutubeDialogResult = {
   canceled?: boolean;
   url?: string;
+  format?: YoutubeAudioFormat;
+};
+
+type YoutubeImportRequest = {
+  link: ParsedYoutubeLink;
+  format: YoutubeAudioFormat;
 };
 
 function escapeHtml(text: string): string {
@@ -57,7 +66,7 @@ async function showErrorDialog(
 
 async function promptYoutubeLink(
   context: ExtensionContext<"1.0.0">,
-): Promise<ParsedYoutubeLink | null> {
+): Promise<YoutubeImportRequest | null> {
   const raw = await context.ui.showModalDialog(
     youtubeDialogDataUrl,
     YOUTUBE_DIALOG_WIDTH,
@@ -75,6 +84,7 @@ async function promptYoutubeLink(
     return null;
   }
 
+  const format = parsed.format === "mp3" ? "mp3" : "wav";
   const link = parseYoutubeLink(parsed.url);
   if (!link) {
     await showErrorDialog(
@@ -85,7 +95,7 @@ async function promptYoutubeLink(
     return null;
   }
 
-  return link;
+  return { link, format };
 }
 
 function throwIfAborted(signal: AbortSignal): void {
@@ -122,10 +132,11 @@ async function runYoutubeImport(
     durationSeconds: number,
   ) => Promise<void>,
 ): Promise<void> {
-  const link = await promptYoutubeLink(context);
-  if (!link) {
+  const request = await promptYoutubeLink(context);
+  if (!request) {
     return;
   }
+  const { link, format } = request;
 
   const tempDir = await resolveTempDirectory(context);
   if (!tempDir) {
@@ -154,9 +165,10 @@ async function runYoutubeImport(
       "Importing from YouTube",
       {},
       async (update, signal) => {
-        const download = await downloadYoutubeAsMp3(
+        const download = await downloadYoutubeAudio(
           context,
           link,
+          format,
           tempDir,
           async (message, percent) => {
             await update(message, percent ?? 0);
@@ -275,7 +287,7 @@ export function activate(activation: ActivationContext) {
     })(arg as Handle);
   });
 
-  const youtubeMenuLabel = "YouTube › Import as MP3…";
+  const youtubeMenuLabel = "YouTube › Import audio…";
 
   context.ui.registerContextMenuAction(
     "ClipSlot",

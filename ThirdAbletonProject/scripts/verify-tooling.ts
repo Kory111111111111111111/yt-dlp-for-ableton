@@ -1,4 +1,6 @@
 import { execSync } from "node:child_process";
+import assert from "node:assert/strict";
+import { buildYtDlpAudioDownloadArgs } from "../src/youtubeDownload.ts";
 import { parseYoutubeLink } from "../src/youtubeUrl.ts";
 
 const sample =
@@ -10,6 +12,22 @@ if (!parsed) {
   process.exit(1);
 }
 console.log("OK: URL parse →", parsed.watchUrl);
+
+const wavArgs = buildYtDlpAudioDownloadArgs({
+  watchUrl: parsed.watchUrl,
+  outputTemplate: "temp.%(ext)s",
+  ffmpegPath: null,
+  format: "wav",
+});
+const mp3Args = buildYtDlpAudioDownloadArgs({
+  watchUrl: parsed.watchUrl,
+  outputTemplate: "temp.%(ext)s",
+  ffmpegPath: null,
+  format: "mp3",
+});
+assert.equal(wavArgs.includes("--audio-quality"), false);
+assert.equal(mp3Args.includes("--audio-quality"), true);
+console.log("OK: WAV/MP3 argument policy");
 
 try {
   const version = execSync("yt-dlp --version", {

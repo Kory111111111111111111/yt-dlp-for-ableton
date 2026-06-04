@@ -1,4 +1,5 @@
 ## This repo holds the open source yt-dl wrapper extension for Ableton Live (12.4.5 Beta 3)
+## The extension will automatically clean **most** youtube links, I have not found one to fail due to the link but if you find a pattern of it submit an issue
 
 ### Prerequesites
 - Ableton Live 12.4.5 Beta 3 (this is the minimum version that has Extension support)
@@ -44,8 +45,6 @@ FlipMessageStreamSocket send success
 - Verify you have correctly installed yt-dlp and ffmpeg (i included both for winget as I find just using yt-dlp doesnt like to work). When you install these, make sure your IDE or terminal is closed as it automatically updates your PATH to allow the extension to work. 
 - Verify you have correctly put the .env in the ThirdAbletonProject folder, not the root repo. 
 - Verify that you have turned on Developer mode inside of the Ableton Extensions settings tab or it Ableton wont open up the extensions server. 
-### CI Is failing?
-- This is exppected behavior, I have the extension SDK in a private repo. Dont worry about this, it will pass when I merge changes into the master branch.
 ### If you have done all of the above and its still not working follow these steps
 - Freshly install yt-dlp and ffmpeg using the commands above, try running your terminal in Administrator mode, though you should not have to do this. 
 - Once you have verified these are installed, open Ableton, verify that your Development mode toggle is turned on.

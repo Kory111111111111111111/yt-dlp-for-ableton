@@ -1,111 +1,82 @@
-# Install Guide
+## Install guide
 
-For **end users** — no Terminal, no Developer Mode, no `npm start`.
+More detail for using the packaged extension. For development see README.md.
 
-## What you need
+---
 
-1. **Ableton Live 12** with Extensions support (beta) — **Windows or macOS**
-2. **yt-dlp** and **ffmpeg** installed and on your system PATH  
-   (the extension does not bundle them)
-
-### Windows
-
-```powershell
+### Prerequesites
+- Ableton Live 12.4.5 Beta 3 (this is the minimum version that has Extension support)
+- Windows (this also works for Mac, I just dont know how to set it up as I dont have one)
+- yt-dlp and ffmpeg (the extension does not bundle these)
+```
 winget install yt-dlp.yt-dlp
 winget install Gyan.FFmpeg
 ```
+- Common sense
 
-Restart Ableton after installing.
-
-If import says yt-dlp was not found, open PowerShell, run `where.exe yt-dlp`, and see **Optional: custom tool paths** below.
-
-### macOS
-
-Install [Homebrew](https://brew.sh/) if you do not have it, then in Terminal:
-
-```bash
+On Mac people usually run this if they have Homebrew:
+```
 brew install yt-dlp ffmpeg
 ```
 
-Restart Ableton after installing.
+When you install yt-dlp and ffmpeg, make sure your terminal is closed after so PATH updates. Restart Ableton.
 
-If import says yt-dlp was not found, open Terminal, run `which yt-dlp`, and see **Optional: custom tool paths** below.
+If import says yt-dlp was not found, run `where.exe yt-dlp` in PowerShell on Windows or `which yt-dlp` on Mac and see the tools.json section below.
 
-On Apple Silicon, Homebrew usually installs to `/opt/homebrew/bin`. On Intel Macs, `/usr/local/bin` is common.
+---
 
-## Install the extension
+### Using The Extension
+- Download the ablx from the releases tab (file is called YouTubeToProject.ablx)
+- open Ableton, go to Settings, go to extensions and drag the ablx or just hit the select file button thing and select the ablx
+- restart Ableton
+- Right click on audio track, import ur MP3s from youtube :)))
 
-1. Download **`YouTubeToProject.ablx`** from the [Releases page](https://github.com/Kory111111111111111111/yt-dlp-for-ableton/releases/latest).
-2. Open **Ableton Live**.
-3. Go to **Settings / Preferences → Extensions**.
-4. Make sure **Developer Mode is OFF** (normal use).
-5. Drag **`YouTubeToProject.ablx`** onto the Extensions page, or use the install control shown there.
-6. Enable the extension if Live asks you to.
+Go into your Ableton extension settings and verify that Development mode is turned off. This should only be turned on while developing the extension (see README).
 
-Restart Live once if the menu does not appear.
+Where you right click:
+- audio track header on the right side - clip at bar 1
+- inside an audio track in arrangement view with a time selection - clip at your selection
+- empty clip slot on an audio track in session view - clip in that slot
 
-## How to use
+The audio ends up inside your Live set like a normal import. Save the project if you want to keep it.
 
-Right-click in Live and choose **YouTube › Import as MP3…**:
+---
 
-| Where to click | Result |
-|----------------|--------|
-| Audio track header (right side) | Clip at bar 1 |
-| Inside an audio track in Arrangement (with time selection) | Clip at selection |
-| Empty clip slot on an **audio** track (Session) | Clip in that slot |
+### Where files go
+- while downloading it uses Lives extension temp folder (not your Downloads folder)
+- after import it is in your set
+- temp download files get deleted after import so they dont pile up
 
-Paste a YouTube link and confirm. Audio is copied into your **Live project** (same as importing a file).
+---
 
-## Where files go
+### yt-dlp or ffmpeg not found in Live
+- Verify you have correctly installed yt-dlp and ffmpeg (i included both for winget as I find just using yt-dlp doesnt like to work). Sometimes they work in your terminal but not inside Live because Live does not always see the same PATH as your shell.
 
-| Stage | Location |
-|-------|----------|
-| During download | Live's extension **temp** folder (automatic; not your Downloads folder) |
-| After import | Inside your **Live set** via Collect/Import (save the set to keep it) |
+If that is your problem, put full paths in a tools.json file.
 
-The extension **deletes temp download files** after a successful import so they do not pile up.
+Find your paths.
 
-## Optional: custom tool paths
-
-If yt-dlp and ffmpeg work in Terminal or PowerShell but **not in Live**, Live is likely running with a narrower PATH than your shell. GUI apps on Windows and macOS often miss user PATH entries (e.g. WinGet folders or Homebrew’s `/opt/homebrew/bin`).
-
-Fix this by giving the extension explicit absolute paths to both executables.
-
-### Step 1 — find your paths
-
-**Windows** — PowerShell:
-
-```powershell
+Windows - PowerShell:
+```
 where.exe yt-dlp
 where.exe ffmpeg
 ```
 
-**macOS** — Terminal:
-
-```bash
+Mac - Terminal:
+```
 which yt-dlp
 which ffmpeg
 ```
 
-Copy the full path printed for each.
+Find the storage folder. Try an import once (even if it fails), then look for a folder named YouTubeToAbleton under your Ableton preferences:
+- Windows: `%APPDATA%\Ableton\Live <version>\Preferences\Extensions\YouTubeToAbleton\storage\`
+- Mac: `~/Library/Preferences/Ableton/Live <version>/Preferences/Extensions/YouTubeToAbleton/storage/`
 
-### Step 2 — find the extension storage folder
+Replace `<version>` with whatever your Live install is called, like `Live 12 Beta`.
 
-The extension creates its storage folder the first time it runs:
+In that storage folder create a file called `tools.json`.
 
-| OS | Typical location |
-|----|------------------|
-| Windows | `%APPDATA%\Ableton\Live <version>\Preferences\Extensions\YouTubeToAbleton\storage\` |
-| macOS | `~/Library/Preferences/Ableton/Live <version>/Preferences/Extensions/YouTubeToAbleton/storage/` |
-
-The fastest way: attempt an import once (it may fail with a message), then look for a folder named `YouTubeToAbleton` under your Ableton Live preferences (see paths above). Replace `<version>` with your Live install name, e.g. `Live 12 Beta`.
-
-### Step 3 — create tools.json
-
-In that **storage** folder, create a file called **`tools.json`**.
-
-**Windows example:**
-
+Windows example (use the paths from where.exe, not this copy paste):
 ```json
 {
   "ytDlpPath": "C:\\Users\\YourName\\AppData\\Local\\Microsoft\\WinGet\\Packages\\yt-dlp.yt-dlp_Microsoft.Winget.Source_8wekyb3d8bbwe\\yt-dlp.exe",
@@ -113,8 +84,7 @@ In that **storage** folder, create a file called **`tools.json`**.
 }
 ```
 
-**macOS example (Apple Silicon / Homebrew):**
-
+Mac example Apple Silicon:
 ```json
 {
   "ytDlpPath": "/opt/homebrew/bin/yt-dlp",
@@ -122,8 +92,7 @@ In that **storage** folder, create a file called **`tools.json`**.
 }
 ```
 
-**macOS example (Intel Mac, Homebrew on `/usr/local`):**
-
+Mac example Intel:
 ```json
 {
   "ytDlpPath": "/usr/local/bin/yt-dlp",
@@ -131,16 +100,30 @@ In that **storage** folder, create a file called **`tools.json`**.
 }
 ```
 
-Use the exact paths from Step 1. You can omit either key if that tool is already visible to Live — only add the ones that are missing.
+Only add the keys for tools Live cant find. Restart Live after you save tools.json.
 
-Restart Live after saving `tools.json`.
+YT_DLP_PATH and FFMPEG_PATH environment variables also work but tools.json is easier.
 
-> **Tip:** The `YT_DLP_PATH` and `FFMPEG_PATH` environment variables are also honoured as fallbacks when set for the Live process (uncommon; `tools.json` is simpler).
+---
 
-## Uninstall
+## Troubleshooting for Extension usage
+- Verify that you have correctly installed yt-dlp and ffmpeg from winget using your terminal.
+- Go into your Ableton extension settings, verify that Development mode is turned off, this should only be turned on while developing the extension.
+- Restart Ableton after installing yt-dlp and ffmpeg
+### If you have done all of the above and its still not working follow these steps
+- Restart your PC
+- Open Ableton
+- Try import again
+- If yt-dlp works in terminal but not in Live, set up tools.json (section above)
 
-Remove the extension from **Preferences → Extensions** in Live.
+For development / npm run start issues see README.md.
 
-## Legal
+---
 
-Only import audio you have the right to use. YouTube's terms of service apply.
+### Uninstall
+- Remove the extension from Settings, extensions in Live
+
+---
+
+### Legal
+- Only import audio you have the right to use. YouTube's terms of service apply.

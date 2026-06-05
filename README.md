@@ -1,5 +1,7 @@
 ## This repo holds the open source yt-dl wrapper extension for Ableton Live (12.4.5 Beta 3)
 ## The extension will automatically clean **most** youtube links, I have not found one to fail due to the link but if you find a pattern of it submit an issue
+## Generally speaking, I am more than happy to offer support if you are having issues, the only thing I require is just minimal ammounts of effort on your end to make my job easier. Please remember, this is not a product that you or anyone else has paid for and any work done with this is simply out of the kindness of whoevers heart is working with the extension. 
+## If you enjoy this extension, you may enjoy some of my VST3 projects that I offer for free on my website wavfinaudio.com
 ---
 ## There are no new big features being guaranteed for this, the only other features I am now exploring are
 - Automatically setting the BPM to sync w/ the imported track

@@ -2,6 +2,6 @@
   "name": "YouTubeToAbleton",
   "author": "koryi",
   "entry": "dist/extension.js",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "minimumApiVersion": "1.0.0"
 }

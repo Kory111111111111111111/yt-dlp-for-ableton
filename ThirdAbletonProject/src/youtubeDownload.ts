@@ -41,11 +41,12 @@ function runProcess(
   onLine: (line: string) => void,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    const { shell, windowsHide } = spawnOptions(executable);
+    const { shell, windowsHide, env } = spawnOptions(executable);
     const child = spawn(executable, args, {
       cwd: tempDir,
       shell,
       windowsHide,
+      env,
       stdio: ["ignore", "pipe", "pipe"],
     });
 

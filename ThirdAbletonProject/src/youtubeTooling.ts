@@ -411,6 +411,44 @@ function runYtDlpVersion(
   });
 }
 
+function runFfmpegVersion(
+  executable: string,
+  signal: AbortSignal,
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const { shell, windowsHide, env } = spawnOptions(executable);
+    const child = spawn(executable, ["-version"], {
+      shell,
+      windowsHide,
+      env,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    const onAbort = () => {
+      child.kill();
+    };
+    signal.addEventListener("abort", onAbort, { once: true });
+
+    child.on("error", (error) => {
+      signal.removeEventListener("abort", onAbort);
+      reject(error);
+    });
+
+    child.on("close", (code) => {
+      signal.removeEventListener("abort", onAbort);
+      if (signal.aborted) {
+        reject(new Error("Cancelled"));
+        return;
+      }
+      if (code === 0) {
+        resolve();
+        return;
+      }
+      reject(new Error(`exit ${code ?? "unknown"}`));
+    });
+  });
+}
+
 export async function assertYoutubeTooling(
   context?: ExtensionContext<"1.0.0">,
 ): Promise<string> {
@@ -428,7 +466,6 @@ export async function assertYoutubeTooling(
 
   try {
     await runYtDlpVersion(executable, new AbortController().signal);
-    return executable;
   } catch (error) {
     if (error instanceof Error && "code" in error && error.code === "ENOENT") {
       throw new YoutubeToolingError(
@@ -439,6 +476,22 @@ export async function assertYoutubeTooling(
       `Could not run yt-dlp (${error instanceof Error ? error.message : String(error)}).\n\n${toolingHint}`,
     );
   }
+
+  // Also verify ffmpeg is available — yt-dlp needs it for audio conversion.
+  const ffmpegPath = resolveFfmpegPath(context);
+  const ffmpegExecutable = ffmpegPath ?? "ffmpeg";
+  try {
+    await runFfmpegVersion(ffmpegExecutable, new AbortController().signal);
+    logToolingDiag(`ffmpeg validated: ${ffmpegExecutable}`);
+  } catch (error) {
+    throw new YoutubeToolingError(
+      `Could not run ffmpeg (${ffmpegExecutable}).\n\n` +
+        "ffmpeg is required for audio conversion. Install it and set ffmpegPath in tools.json if needed.\n\n" +
+        toolingHint,
+    );
+  }
+
+  return executable;
 }
 
 function resolveRunnableCandidate(candidate: string | null): string | null {

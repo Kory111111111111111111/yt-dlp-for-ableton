@@ -15,7 +15,7 @@ import {
   downloadYoutubeAudio,
   type YoutubeAudioFormat,
 } from "./youtubeDownload.js";
-import { cleanupTempArtifacts } from "./tempCleanup.js";
+import { cleanupTempArtifacts, cleanupStaleTempFiles } from "./tempCleanup.js";
 import { parseYoutubeLink, type ParsedYoutubeLink } from "./youtubeUrl.js";
 import { assertYoutubeTooling, YoutubeToolingError } from "./youtubeTooling.js";
 
@@ -124,7 +124,33 @@ async function resolveTempDirectory(
   return tempDir;
 }
 
+let importing = false;
+
 async function runYoutubeImport(
+  context: ExtensionContext<"1.0.0">,
+  importTarget: (
+    importedPath: string,
+    title: string,
+    durationSeconds: number,
+  ) => Promise<void>,
+): Promise<void> {
+  if (importing) {
+    await showErrorDialog(
+      context,
+      "Import in progress",
+      "Another YouTube import is already running. Wait for it to finish, then try again.",
+    );
+    return;
+  }
+  importing = true;
+  try {
+    await runYoutubeImportInner(context, importTarget);
+  } finally {
+    importing = false;
+  }
+}
+
+async function runYoutubeImportInner(
   context: ExtensionContext<"1.0.0">,
   importTarget: (
     importedPath: string,
@@ -184,8 +210,10 @@ async function runYoutubeImport(
           context.resources.importIntoProject(download.filePath),
         );
 
-        await context.withinTransaction(() =>
-          importTarget(importedPath, download.title, download.durationSeconds),
+        await importTarget(
+          importedPath,
+          download.title,
+          download.durationSeconds,
         );
 
         await cleanupTempArtifacts(tempDir, link.videoId);
@@ -209,6 +237,12 @@ export function activate(activation: ActivationContext) {
   const context = initialize(activation, "1.0.0");
   const bpm = () => context.application.song.tempo;
 
+  // Clean up stale temp files from previous crashed or cancelled imports.
+  const tempDir = context.environment.tempDirectory;
+  if (tempDir) {
+    void cleanupStaleTempFiles(tempDir);
+  }
+
   context.commands.registerCommand("youtube.importClipSlot", (arg: unknown) => {
     void (async (handle: Handle) => {
       const clipSlot = context.getObjectFromHandle(handle, ClipSlot);
@@ -227,11 +261,8 @@ export function activate(activation: ActivationContext) {
         });
       });
     })(arg as Handle).catch((error) => {
-      void showErrorDialog(
-        context,
-        "Import failed",
-        formatClipCreationError(error),
-      );
+      const detail = error instanceof Error ? error.message : String(error);
+      void showErrorDialog(context, "Import failed", detail);
     });
   });
 
@@ -270,7 +301,10 @@ export function activate(activation: ActivationContext) {
             isWarped: false,
           });
         });
-      })(arg as ArrangementSelection);
+      })(arg as ArrangementSelection).catch((error) => {
+        const detail = error instanceof Error ? error.message : String(error);
+        void showErrorDialog(context, "Import failed", detail);
+      });
     },
   );
 
@@ -284,7 +318,10 @@ export function activate(activation: ActivationContext) {
           isWarped: false,
         });
       });
-    })(arg as Handle);
+    })(arg as Handle).catch((error) => {
+      const detail = error instanceof Error ? error.message : String(error);
+      void showErrorDialog(context, "Import failed", detail);
+    });
   });
 
   const youtubeMenuLabel = "YouTube › Import audio…";
@@ -308,11 +345,4 @@ export function activate(activation: ActivationContext) {
   );
 }
 
-function formatClipCreationError(error: unknown): string {
-  const detail = error instanceof Error ? error.message : String(error);
-  return (
-    "Could not create an audio clip in this slot.\n\n" +
-    "Use an empty clip slot on an audio track in Session view.\n\n" +
-    `Details: ${detail}`
-  );
-}
+

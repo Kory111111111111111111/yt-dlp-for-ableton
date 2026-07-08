@@ -4,7 +4,7 @@ import * as path from "node:path";
 import type { ExtensionContext } from "@ableton-extensions/sdk";
 import type { ParsedYoutubeLink } from "./youtubeUrl.js";
 import {
-  assertYoutubeTooling,
+  resolveYtDlpExecutable,
   resolveFfmpegPath,
   spawnOptions,
 } from "./youtubeTooling.js";
@@ -121,6 +121,8 @@ export function buildYtDlpAudioDownloadArgs({
     format,
     ...qualityArgs,
     "--no-part",
+    "--max-filesize",
+    "500M",
     ...ffmpegArgs,
     "-o",
     outputTemplate,
@@ -136,7 +138,7 @@ export async function downloadYoutubeAudio(
   onProgress: (message: string, percent?: number) => Promise<void>,
   signal: AbortSignal,
 ): Promise<YoutubeDownloadResult> {
-  const ytDlp = await assertYoutubeTooling(context);
+  const ytDlp = resolveYtDlpExecutable(context);
   const ffmpegPath = resolveFfmpegPath(context);
   const { watchUrl, videoId } = link;
 
@@ -156,13 +158,23 @@ export async function downloadYoutubeAudio(
     (line) => infoLines.push(line),
   );
 
-  if (infoLines[0]) {
-    title = infoLines[0];
-  }
-  if (infoLines[1]) {
-    const parsed = Number.parseFloat(infoLines[1]);
-    if (Number.isFinite(parsed) && parsed > 0) {
-      durationSeconds = parsed;
+  // Parse title and duration from infoLines, scanning from the end
+  // to skip over yt-dlp warnings (e.g., JavaScript challenge solver errors)
+  // that may appear in stdout/stderr before the --print output.
+  if (infoLines.length >= 2) {
+    // Find the last line that looks like a valid duration (positive number).
+    let durationIdx = -1;
+    for (let i = infoLines.length - 1; i >= 0; i--) {
+      const parsed = Number.parseFloat(infoLines[i]!);
+      if (Number.isFinite(parsed) && parsed > 0 && parsed < 86400) {
+        durationSeconds = parsed;
+        durationIdx = i;
+        break;
+      }
+    }
+    // Title is the line immediately before the duration line.
+    if (durationIdx > 0) {
+      title = infoLines[durationIdx - 1] ?? title;
     }
   }
 
@@ -179,7 +191,7 @@ export async function downloadYoutubeAudio(
     signal,
     (line) => {
       const percent = parseProgressPercent(line);
-      void onProgress(line, percent);
+      onProgress(line, percent).catch(() => undefined);
     },
   );
 

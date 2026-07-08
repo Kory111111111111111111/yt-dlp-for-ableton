@@ -11,6 +11,7 @@ import {
 import { mkdir } from "node:fs/promises";
 import errorDialogTemplate from "./error-dialog.html";
 import youtubeDialogTemplate from "./youtube-dialog.html";
+import { detectBpm } from "./bpmDetection.js";
 import {
   downloadYoutubeAudio,
   type YoutubeAudioFormat,
@@ -20,7 +21,7 @@ import { parseYoutubeLink, type ParsedYoutubeLink } from "./youtubeUrl.js";
 import { assertYoutubeTooling, YoutubeToolingError } from "./youtubeTooling.js";
 
 const YOUTUBE_DIALOG_WIDTH = 440;
-const YOUTUBE_DIALOG_HEIGHT = 232;
+const YOUTUBE_DIALOG_HEIGHT = 268;
 const ERROR_DIALOG_WIDTH = 420;
 const ERROR_DIALOG_HEIGHT = 220;
 
@@ -28,11 +29,13 @@ type YoutubeDialogResult = {
   canceled?: boolean;
   url?: string;
   format?: YoutubeAudioFormat;
+  syncTempo?: boolean;
 };
 
 type YoutubeImportRequest = {
   link: ParsedYoutubeLink;
   format: YoutubeAudioFormat;
+  syncTempo: boolean;
 };
 
 function escapeHtml(text: string): string {
@@ -85,6 +88,7 @@ async function promptYoutubeLink(
   }
 
   const format = parsed.format === "mp3" ? "mp3" : "wav";
+  const syncTempo = parsed.syncTempo === true;
   const link = parseYoutubeLink(parsed.url);
   if (!link) {
     await showErrorDialog(
@@ -95,7 +99,7 @@ async function promptYoutubeLink(
     return null;
   }
 
-  return { link, format };
+  return { link, format, syncTempo };
 }
 
 function throwIfAborted(signal: AbortSignal): void {
@@ -162,7 +166,7 @@ async function runYoutubeImportInner(
   if (!request) {
     return;
   }
-  const { link, format } = request;
+  const { link, format, syncTempo } = request;
 
   const tempDir = await resolveTempDirectory(context);
   if (!tempDir) {
@@ -202,6 +206,17 @@ async function runYoutubeImportInner(
           },
           signal,
         );
+
+        // Optionally detect tempo if the user opted in.
+        if (syncTempo) {
+          await update("Detecting tempo…", 93);
+          throwIfAborted(signal);
+          const detectedBpm = await detectBpm(download.filePath);
+          if (detectedBpm) {
+            context.application.song.tempo = detectedBpm;
+            await update(`Tempo set to ${detectedBpm} BPM`, 97);
+          }
+        }
 
         await update("Adding to project…", 100);
         throwIfAborted(signal);

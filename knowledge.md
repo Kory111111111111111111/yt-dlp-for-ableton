@@ -3,7 +3,7 @@
 ## What this is
 An Ableton Live 12 extension that imports YouTube audio (WAV or MP3) directly into a session. Users right-click an audio track/clip slot, paste a YouTube link, and the extension downloads + converts it via yt-dlp/ffmpeg and inserts it as an audio clip.
 
-**Author:** koryi | **Version:** 0.1.4 | **License:** see LICENSE.md
+**Author:** koryi | **Version:** 0.1.6 | **License:** see LICENSE.md
 
 ## Project layout
 - **`ThirdAbletonProject/`** — the actual extension source code (this is where all dev work happens)
@@ -21,6 +21,8 @@ An Ableton Live 12 extension that imports YouTube audio (WAV or MP3) directly in
 | `tempCleanup.ts` | Deletes temporary files by video ID prefix after import |
 | `youtube-dialog.html` | Modal dialog template for the YouTube URL input form |
 | `error-dialog.html` | Modal dialog template for error display |
+| `html.d.ts` | TypeScript declaration for `.html` imports as text strings |
+| `bpmDetection.ts` | Detects BPM from downloaded audio via `music-tempo` + `audio-decode`; includes octave correction |
 
 ## Commands (run from `ThirdAbletonProject/`)
 ```bash
@@ -34,7 +36,7 @@ npm run package          # production build + create .ablx package
 ```
 
 ## Tech stack
-- **Runtime:** Node.js ≥ 24.14.1 (CJS bundle via esbuild)
+- **Runtime:** Node.js ≥ 24.16.0 (CJS bundle via esbuild)
 - **Language:** TypeScript 5.9, strict mode, `module: nodenext`
 - **SDK:** `@ableton-extensions/sdk` v1.0.0-beta.0 (Ableton Extensions API). SDK is distributed via Centercode as `extensions-sdk-<version>.zip`.
 - **Build:** esbuild 0.28 (bundles `src/extension.ts` → `dist/extension.js`, `.html` files loaded as text via `loader: { ".html": "text" }`)

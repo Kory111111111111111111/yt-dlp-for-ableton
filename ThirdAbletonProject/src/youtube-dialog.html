@@ -17,8 +17,14 @@
       window.__initYoutubeDialog = function () {
         var input = document.getElementById("url");
         var format = document.getElementById("format");
+        var syncTempo = document.getElementById("sync-tempo");
         document.getElementById("btn-import").onclick = function () {
-          closeWithResult({ url: input.value, format: format.value, canceled: false });
+          closeWithResult({
+            url: input.value,
+            format: format.value,
+            syncTempo: syncTempo.checked,
+            canceled: false,
+          });
         };
         document.getElementById("btn-cancel").onclick = function () {
           closeWithResult({ canceled: true });
@@ -74,6 +80,18 @@
       text-transform: uppercase;
     }
     .alx-input:focus { outline: 2px solid #6a6a6a; }
+    .sync-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #b5b5b5;
+      font-size: 11px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .sync-row input[type="checkbox"] {
+      accent-color: #ff9f43;
+    }
     .spacer { flex: 1; }
     .actions { display: flex; justify-content: flex-end; gap: 8px; }
     .actions button {
@@ -107,6 +125,10 @@
       </select>
     </div>
   </div>
+  <label class="sync-row">
+    <input type="checkbox" id="sync-tempo" />
+    <span>Sync detected tempo to project</span>
+  </label>
   <div class="spacer"></div>
   <div class="actions">
     <button type="button" id="btn-cancel">Cancel</button>

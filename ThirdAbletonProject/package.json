@@ -13,7 +13,9 @@
     "package": "npm run build -- --production && extensions-cli package -o dist/YouTubeToProject.ablx"
   },
   "dependencies": {
-    "@ableton-extensions/sdk": "file:./vendor/ableton-extensions-sdk-1.0.0-beta.0.tgz"
+    "@ableton-extensions/sdk": "file:./vendor/ableton-extensions-sdk-1.0.0-beta.0.tgz",
+    "audio-decode": "^3.11.0",
+    "music-tempo": "^1.0.3"
   },
   "devDependencies": {
     "@ableton-extensions/cli": "file:./vendor/ableton-extensions-cli-1.0.0-beta.0.tgz",

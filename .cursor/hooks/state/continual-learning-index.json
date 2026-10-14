@@ -1,15 +1,21 @@
 ﻿{
-    "updatedAt":  "2026-07-08T21:01:09.5858331Z",
-    "transcripts":  {
-                        "C:/Users/koryi/.cursor/projects/c-Users-koryi-Desktop-Dev-Apps-YoutubeToAbleton-yt-dlp-for-ableton/agent-transcripts/2e998c6a-42e3-481e-befd-b8e2ffa6b72f/subagents/1fad5f10-8366-406b-b583-45bd61dd386a.jsonl":  {
-                                                                                                                                                                                                                                               "mtimeMs":  1783544397114
-                                                                                                                                                                                                                                           },
-                        "C:/Users/koryi/.cursor/projects/c-Users-koryi-Desktop-Dev-Apps-YoutubeToAbleton-yt-dlp-for-ableton/agent-transcripts/2e998c6a-42e3-481e-befd-b8e2ffa6b72f/2e998c6a-42e3-481e-befd-b8e2ffa6b72f.jsonl":  {
-                                                                                                                                                                                                                                     "mtimeMs":  1783544389153
-                                                                                                                                                                                                                                 },
-                        "C:/Users/koryi/.cursor/projects/c-Users-koryi-Desktop-Dev-Apps-YoutubeToAbleton-yt-dlp-for-ableton/agent-transcripts/2e998c6a-42e3-481e-befd-b8e2ffa6b72f/subagents/4f1c7bea-bb66-4ac8-8af1-d07fff044434.jsonl":  {
-                                                                                                                                                                                                                                               "mtimeMs":  1783538114057
-                                                                                                                                                                                                                                           }
-                    },
-    "version":  1
+  "version": 1,
+  "updatedAt": "2026-07-08T23:55:00.000Z",
+  "transcripts": {
+    "C:/Users/koryi/.cursor/projects/c-Users-koryi-Desktop-APPS-yt-dlp-for-ableton/agent-transcripts/46c2aacc-d2d0-4a5a-860f-d5a235b964fa/46c2aacc-d2d0-4a5a-860f-d5a235b964fa.jsonl": {
+      "mtimeMs": 1783554692100
+    },
+    "C:/Users/koryi/.cursor/projects/c-Users-koryi-Desktop-APPS-yt-dlp-for-ableton/agent-transcripts/46c2aacc-d2d0-4a5a-860f-d5a235b964fa/subagents/d10021ea-832e-43a6-bfe7-e31736b9bfb5.jsonl": {
+      "mtimeMs": 1783554697114
+    },
+    "C:/Users/koryi/.cursor/projects/c-Users-koryi-Desktop-APPS-yt-dlp-for-ableton/agent-transcripts/64db9c9b-434f-4083-af01-33ea7f052171/64db9c9b-434f-4083-af01-33ea7f052171.jsonl": {
+      "mtimeMs": 1780543638670
+    },
+    "C:/Users/koryi/.cursor/projects/c-Users-koryi-Desktop-APPS-yt-dlp-for-ableton/agent-transcripts/6c8375dc-6feb-40ac-84a9-bf9490972ae9/6c8375dc-6feb-40ac-84a9-bf9490972ae9.jsonl": {
+      "mtimeMs": 1780537868170
+    },
+    "C:/Users/koryi/.cursor/projects/c-Users-koryi-Desktop-APPS-yt-dlp-for-ableton/agent-transcripts/b18b2d74-9dcb-420b-90c2-cf889b18b919/b18b2d74-9dcb-420b-90c2-cf889b18b919.jsonl": {
+      "mtimeMs": 1780535967498
+    }
+  }
 }
